@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} — Flag capturé{% endblock %}
+{% block content %}
+
+<div class="reveal">
+  <div class="icon-wrap">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M5 3v18"/>
+      <path d="M5 3h12l-2 5 2 5H5"/>
+    </svg>
+  </div>
+
+  <div class="label">Flag capturé</div>
+  <h2>{{ title }}</h2>
+
+  <div class="flag-wrap">
+    <span class="flag" id="flag-value">{{ flag }}</span>
+    <button class="copy-btn" type="button"
+            onclick="(async()=>{const t=document.getElementById('flag-value').textContent;try{await navigator.clipboard.writeText(t);this.textContent='✓ copié';this.classList.add('copied');setTimeout(()=>{this.textContent='copier';this.classList.remove('copied');},1600);}catch(e){this.textContent='✗';}})()">
+      copier
+    </button>
+  </div>
+
+  {% if hint %}<div class="why">{{ hint }}</div>{% endif %}
+  <div class="submit-hint">
+    Recopie ce flag dans le <strong>CTFd</strong> de ton prof pour valider le challenge.
+  </div>
+</div>
+
+<p style="text-align:center; margin-top:1.5rem;">
+  <a href="/">← Retour à la carte</a>
+</p>
+
+{% endblock %}

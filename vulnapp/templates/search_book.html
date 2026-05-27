@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Bibliothèque{% endblock %}
+{% block content %}
+
+<div class="card">
+  <h2>📚 Bibliothèque de bord</h2>
+  <form method="GET" action="/search_book">
+    <label>Titre contient
+      <input type="search" name="q" value="{{ q }}" autofocus>
+    </label>
+    <button type="submit">Chercher</button>
+  </form>
+  {% if sql %}
+    <p class="hint">Requête générée (mode debug) :</p>
+    <pre>{{ sql }}</pre>
+  {% endif %}
+</div>
+
+{% if error %}
+  <div class="error">Erreur SQL : {{ error }}</div>
+{% endif %}
+
+{% if results is not none %}
+  <div class="panel">
+    <h3>Résultats ({{ results|length }})</h3>
+    {% if results %}
+      <table>
+        <tr><th>ID</th><th>Titre</th><th>Auteur</th></tr>
+        {% for r in results %}
+          <tr>
+            <td>{{ r[0] }}</td>
+            <td>{{ r[1] }}</td>
+            <td>{{ r[2] }}</td>
+          </tr>
+        {% endfor %}
+      </table>
+    {% else %}
+      <p><em>Aucun résultat.</em></p>
+    {% endif %}
+  </div>
+{% endif %}
+
+<p class="hint">
+  Le moteur de recherche est rudimentaire — il colle ton texte dans la
+  requête. Et il a trois colonnes. C'est dommage qu'il n'y ait que des livres.
+</p>
+
+{% endblock %}

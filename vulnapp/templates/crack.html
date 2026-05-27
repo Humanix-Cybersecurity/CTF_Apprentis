@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}La machine à hash{% endblock %}
+{% block content %}
+
+<div class="card">
+  <h2>🔨 La machine à hash</h2>
+  <p>
+    Un vieux parchemin présente une suite de caractères. Le boucanier
+    qui l'a rédigé jure que ce hash « est incassable ».
+  </p>
+  <p><strong>MD5 :</strong> <code>{{ target }}</code></p>
+
+  <form method="POST" action="/crack">
+    <label>Mot d'origine
+      <input type="text" name="guess" autofocus required>
+    </label>
+    <button type="submit">Soumettre</button>
+  </form>
+
+  {% if result %}<div class="error">{{ result }}</div>{% endif %}
+
+  <p class="hint">
+    MD5 + mot du dico = 200 ms sur crackstation.net. Pas besoin de hacker
+    quoi que ce soit, juste de connaître ses limites.
+  </p>
+</div>
+
+{% endblock %}

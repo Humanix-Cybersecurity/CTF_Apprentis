@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Boutique{% endblock %}
+{% block content %}
+
+<div class="card">
+  <h2>🛍️ Boutique de l'aventurier</h2>
+
+  {% if message %}<div class="info">{{ message }}</div>{% endif %}
+
+  <table>
+    <tr><th>#</th><th>Produit</th><th>Prix</th><th>Ajouter</th></tr>
+    {% for p in products %}
+      <tr>
+        <td>{{ p.id }}</td>
+        <td>{{ p.name }} <br><small>{{ p.description }}</small></td>
+        <td>{{ "%.2f"|format(p.price) }} €</td>
+        <td>
+          <form class="inline-form" method="POST" action="/shop">
+            <input type="hidden" name="action" value="add">
+            <input type="hidden" name="pid" value="{{ p.id }}">
+            <input type="number" name="qty" value="1" style="width:5rem;">
+            <button type="submit">Ajouter</button>
+          </form>
+        </td>
+      </tr>
+    {% endfor %}
+  </table>
+</div>
+
+<div class="panel">
+  <h3>Ton panier</h3>
+  {% if cart %}
+    <table>
+      <tr><th>Produit</th><th>Qté</th><th>Prix unité</th><th>Sous-total</th></tr>
+      {% for it in cart %}
+        <tr>
+          <td>{{ it.name }}</td>
+          <td>{{ it.qty }}</td>
+          <td>{{ "%.2f"|format(it.price) }} €</td>
+          <td>{{ "%.2f"|format(it.line) }} €</td>
+        </tr>
+      {% endfor %}
+    </table>
+  {% else %}
+    <p><em>Panier vide.</em></p>
+  {% endif %}
+
+  <p>Coupons appliqués : {{ coupons|length }} × WELCOME10 (-{{ 10 * (coupons|length) }} €)</p>
+  <p><strong>Total : {{ "%.2f"|format(total) }} €</strong></p>
+
+  <form method="POST" action="/shop" style="flex-direction:row; align-items:center;">
+    <input type="hidden" name="action" value="coupon">
+    <input type="text" name="code" placeholder="Code promo">
+    <button type="submit">Appliquer</button>
+  </form>
+  <form method="POST" action="/shop" class="inline-form">
+    <input type="hidden" name="action" value="checkout">
+    <button type="submit">Valider la commande</button>
+    <button type="submit" name="action" value="reset" formaction="/shop" class="ghost">Vider le panier</button>
+  </form>
+</div>
+
+<p class="hint">
+  Cette boutique respecte une vieille maxime de dev : « si l'utilisateur
+  envoie un nombre, c'est un nombre, on lui fait confiance ».
+</p>
+
+{% endblock %}

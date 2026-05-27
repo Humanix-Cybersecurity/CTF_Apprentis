@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Message en bouteille{% endblock %}
+{% block content %}
+
+<div class="card">
+  <h2>📜 Message en bouteille</h2>
+  <p>
+    Un perroquet a trouvé une bouteille. À l'intérieur, un parchemin moitié
+    rongé par le sel. Tu n'y lis qu'un mot — <em>« sécurité »</em> — barré
+    plusieurs fois.
+  </p>
+  <p>
+    Le perroquet a aussi glissé quelque chose <strong>dans tes affaires</strong>
+    avant de s'envoler. Va voir tes biscuits (🍪) : il y a un <code>secret</code>
+    qui n'y était pas.
+  </p>
+  <p class="hint">
+    Indice : <code>F12 → Application → Cookies → secret</code>.
+    Ce qui ressemble à du chiffrement n'en est pas toujours.
+  </p>
+  <pre>secret (en clair pour ceux qui n'ont pas F12) : {{ encoded }}</pre>
+</div>
+
+{% endblock %}

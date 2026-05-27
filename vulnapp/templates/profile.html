@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Profil — {{ profile.username if profile else "inconnu" }}{% endblock %}
+{% block content %}
+
+<div class="card">
+  <h2>Profil de l'équipier #{{ uid }}</h2>
+
+  {% if not profile %}
+    <div class="error">Aucun équipier sous ce numéro.</div>
+    <p class="hint">Essaie d'autres ID. Les comptes vont de 1 à… quelques dizaines.</p>
+  {% else %}
+    <table>
+      <tr><th>Username</th><td>{{ profile.username }}</td></tr>
+      <tr><th>Email</th>    <td>{{ profile.email }}</td></tr>
+      <tr><th>Rôle</th>     <td>{{ profile.role }}</td></tr>
+      <tr><th>Solde</th>    <td>{{ "%.2f"|format(profile.balance) }} €</td></tr>
+      <tr><th>Note</th>     <td>{{ profile.note or "—" }}</td></tr>
+    </table>
+  {% endif %}
+
+  <p style="margin-top:1rem;">
+    <a href="/profile?id={{ uid - 1 }}">⬅ Profil précédent</a> &nbsp;|&nbsp;
+    <a href="/profile?id={{ uid + 1 }}">Profil suivant ➡</a>
+  </p>
+</div>
+
+{% endblock %}

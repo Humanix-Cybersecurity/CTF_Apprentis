@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Rapport envoyé{% endblock %}
+{% block content %}
+
+<div class="card">
+  <h2>🚩 Rapport envoyé à l'admin</h2>
+  <p>Un administrateur (bot) vient de charger la page produit #{{ pid }} pour vérifier.</p>
+  <p class="hint">{{ hint }}</p>
+  <p><a href="/product/{{ pid }}">⬅ Retour à la page produit</a></p>
+</div>
+
+{% endblock %}

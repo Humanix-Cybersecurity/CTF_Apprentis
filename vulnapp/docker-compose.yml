@@ -1,0 +1,19 @@
+services:
+  vulnapp:
+    build: .
+    image: ctf-carte-au-tresor/vulnapp:latest
+    container_name: vulnapp
+    ports:
+      - "127.0.0.1:8080:8080"   # exposé UNIQUEMENT sur localhost
+    environment:
+      # Mode statique par défaut. Pour activer l'anti-triche (flags uniques par
+      # élève), décommente la ligne ci-dessous et remplace par ton identifiant
+      # (prénom + nom, e-mail tronqué, etc.) :
+      # STUDENT_ID: "ton_id_eleve"
+      STUDENT_ID: ""
+    volumes:
+      - vulnapp_data:/app/data
+    restart: unless-stopped
+
+volumes:
+  vulnapp_data:

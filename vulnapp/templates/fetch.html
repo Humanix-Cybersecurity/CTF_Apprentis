@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Pigeon voyageur{% endblock %}
+{% block content %}
+
+<div class="card">
+  <h2>🕊️ Pigeon voyageur</h2>
+  <p>
+    Donne-lui une URL. Il ira chercher le contenu pour toi <em>depuis le
+    navire</em> et reviendra te le présenter.
+  </p>
+  <form method="GET" action="/fetch">
+    <label>URL à récupérer
+      <input type="text" name="url" value="{{ url or 'https://example.com' }}" autofocus>
+    </label>
+    <button type="submit">Envoyer le pigeon</button>
+  </form>
+
+  {% if content is not none %}
+    <h3>Réponse</h3>
+    <pre>{{ content }}</pre>
+  {% endif %}
+
+  <p class="hint">
+    Le pigeon part du serveur, pas de ton navigateur. Il peut donc voir
+    des choses que toi tu ne vois pas (les voisins internes du navire,
+    par exemple).
+  </p>
+</div>
+
+{% endblock %}

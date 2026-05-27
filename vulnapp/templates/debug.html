@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Debug — diagnostics serveur{% endblock %}
+{% block content %}
+
+<div class="card">
+  <h2>Endpoint de diagnostic</h2>
+  <p class="hint">
+    [interne] Page utilisée par les devs en local. Ne sera pas déployée en prod.
+    (… c'est ce que disait la PR. C'était il y a 18 mois.)
+  </p>
+
+  <h3>Variables d'environnement</h3>
+  <table>
+    {% for k, v in env.items() %}
+      <tr><th>{{ k }}</th><td><code>{{ v }}</code></td></tr>
+    {% endfor %}
+  </table>
+
+  <h3>Python</h3>
+  <pre>{{ version }}</pre>
+
+  <h3>Routes enregistrées</h3>
+  <pre>{% for r in routes %}{{ r }}
+{% endfor %}</pre>
+</div>
+
+{% endblock %}

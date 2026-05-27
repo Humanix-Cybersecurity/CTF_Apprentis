@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!--
+  Bienvenue matelot. Cette page est honnête, mais d'autres ne le sont pas.
+  Astuce de boucanier : tous les navires ont un /robots.txt — c'est public.
+-->
+
+<section class="hero">
+  <h1>La <span class="accent">Carte au Trésor</span></h1>
+  <p>
+    Une boutique d'aventurier en apparence paisible — sauf que <strong>20 trésors</strong>
+    (OWASP Top 10) sont cachés dans le code. À toi de les retrouver, un par un, et
+    de soumettre chaque flag dans le CTFd de ton prof.
+  </p>
+  <div class="badge-row">
+    <span class="badge accent">20 challenges</span>
+    <span class="badge info">OWASP Top 10 2021</span>
+    <span class="badge">Hints gratuits</span>
+    {% if student_id %}
+      <span class="badge warn">mode anti-triche · {{ student_id }}</span>
+    {% else %}
+      <span class="badge">mode statique</span>
+    {% endif %}
+  </div>
+</section>
+
+<section class="panel">
+  <div class="row" style="margin-bottom:0.4rem;">
+    <h2 style="margin:0;">Lieux à explorer</h2>
+    <span class="spacer"></span>
+    <span class="hint" style="margin:0;">12 points d'entrée visibles · d'autres sont cachés</span>
+  </div>
+
+  <div class="places">
+    <a class="place" href="/profile?id=1">
+      <div class="place-title"><span class="ico">👤</span> Profils</div>
+      <small>Voir un profil utilisateur</small>
+    </a>
+    <a class="place" href="/login">
+      <div class="place-title"><span class="ico">🔐</span> Connexion</div>
+      <small>Se connecter au navire</small>
+    </a>
+    <a class="place" href="/search">
+      <div class="place-title"><span class="ico">🔎</span> Recherche</div>
+      <small>Chercher du contenu sur le site</small>
+    </a>
+    <a class="place" href="/search_book">
+      <div class="place-title"><span class="ico">📚</span> Bibliothèque</div>
+      <small>Catalogue des livres de bord</small>
+    </a>
+    <a class="place" href="/shop">
+      <div class="place-title"><span class="ico">🛒</span> Boutique</div>
+      <small>Acheter cartes, longues-vues…</small>
+    </a>
+    <a class="place" href="/product/1">
+      <div class="place-title"><span class="ico">📦</span> Produit</div>
+      <small>Page produit + commentaires</small>
+    </a>
+    <a class="place" href="/treasure_message">
+      <div class="place-title"><span class="ico">📜</span> Message en bouteille</div>
+      <small>Un message du capitaine</small>
+    </a>
+    <a class="place" href="/vip">
+      <div class="place-title"><span class="ico">⭐</span> Salon VIP</div>
+      <small>Réservé aux capitaines</small>
+    </a>
+    <a class="place" href="/crack">
+      <div class="place-title"><span class="ico">🔨</span> Machine à hash</div>
+      <small>Devine le mot derrière le hash</small>
+    </a>
+    <a class="place" href="/preview?name=Matelot">
+      <div class="place-title"><span class="ico">👋</span> Aperçu</div>
+      <small>Personnalise ton salut</small>
+    </a>
+    <a class="place" href="/fetch">
+      <div class="place-title"><span class="ico">🕊️</span> Pigeon voyageur</div>
+      <small>Récupère une URL côté serveur</small>
+    </a>
+    <a class="place" href="/download?file=manifest.txt">
+      <div class="place-title"><span class="ico">📄</span> Manifeste</div>
+      <small>Télécharger un fichier du navire</small>
+    </a>
+  </div>
+</section>
+
+<section class="card">
+  <h2>Avant de commencer</h2>
+  <p style="color:var(--text-dim);">
+    Le clic droit existe. <code>Ctrl + U</code> aussi. Et <code>F12</code>.
+    Beaucoup de trésors n'attendent que ça. Quand tu bloques, lis les hints
+    du CTFd — ils sont gratuits et progressifs (orientation → piste → quasi-solution).
+  </p>
+</section>
+
+{% endblock %}

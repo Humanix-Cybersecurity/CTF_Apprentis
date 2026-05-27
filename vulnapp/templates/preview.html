@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Aperçu du message d'accueil{% endblock %}
+{% block content %}
+
+<div class="card">
+  <h2>👋 Aperçu du salut d'accueil</h2>
+  <form method="GET" action="/preview">
+    <label>Ton prénom (sera rendu via le moteur de templates Jinja)
+      <input type="text" name="name" value="{{ name }}" autofocus>
+    </label>
+    <button type="submit">Aperçu</button>
+  </form>
+
+  <h3>Résultat</h3>
+  <pre>{{ rendered }}</pre>
+
+  <p class="hint">
+    Le moteur de templates « interprète » ce que tu écris. Que se passe-t-il
+    si tu lui passes <code>{{ '{{7*7}}' }}</code> ? Et au-delà ?
+  </p>
+</div>
+
+{% endblock %}

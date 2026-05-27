@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Recherche{% endblock %}
+{% block content %}
+
+<div class="card">
+  <h2>Recherche dans le journal de bord</h2>
+  <form method="GET" action="/search">
+    <label>Terme à rechercher
+      <input type="search" name="q" value="{{ q }}" autofocus>
+    </label>
+    <button type="submit">Chercher</button>
+  </form>
+</div>
+
+{% if q %}
+  <div class="panel">
+    <h3>Résultats pour : {{ q|safe }}</h3>
+    <p>Aucun résultat trouvé dans le journal pour ce terme.</p>
+    {# # [VULN A03] q rendu sans échappement -> XSS reflected (#5) #}
+    <p>Tu as cherché : <em>{{ q|safe }}</em></p>
+  </div>
+
+  {% if triggered %}
+    <div class="reveal">
+      <span class="chest">🦜</span>
+      <h2>Le perroquet répète tout ce que tu dis</h2>
+      <div class="flag">{{ xss_flag }}</div>
+      <div class="why">Tu viens d'exécuter du JS arbitraire dans la page d'un autre. C'est ça, le XSS reflété.</div>
+    </div>
+  {% endif %}
+{% endif %}
+
+{% endblock %}

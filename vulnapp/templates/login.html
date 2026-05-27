@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Connexion — La Carte au Trésor{% endblock %}
+{% block content %}
+
+<div class="card">
+  <h2>Connexion au navire</h2>
+
+  {% if error %}<div class="error">{{ error }}</div>{% endif %}
+
+  <form method="POST" action="/login">
+    <label>Nom d'utilisateur
+      <input type="text" name="username" autofocus required>
+    </label>
+    <label>Mot de passe
+      <input type="text" name="password" required>
+    </label>
+    <button type="submit">Embarquer</button>
+  </form>
+
+  {% if query %}
+    <h3 style="margin-top:1.4rem;">Requête exécutée (mode debug pour l'aventurier curieux)</h3>
+    <pre>{{ query }}</pre>
+  {% endif %}
+
+  <p class="hint">
+    Astuce navale : certains comptes existent depuis longtemps.
+    Le capitaine actuel s'appelle <code>captain</code>, le trésorier
+    <code>tresorier</code>. Les autres équipiers : alice, bob, charlie, diana, edgar.
+    Et il paraît qu'un compte <code>admin</code> traîne encore.
+  </p>
+</div>
+
+{% endblock %}

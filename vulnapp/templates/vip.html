@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Salon VIP{% endblock %}
+{% block content %}
+
+<div class="card">
+  <h2>🛋️ Salon VIP</h2>
+  <p>Ton rôle actuel : <strong>{{ role }}</strong>.</p>
+
+  {% if role != "admin" %}
+    <p>
+      Désolé matelot, ce salon est réservé aux capitaines (role
+      <code>admin</code>). On t'a quand même donné un jeton de session :
+    </p>
+    <pre>{{ token }}</pre>
+    <p class="hint">
+      Un JWT, c'est trois blocs Base64URL séparés par des points.
+      Décode le 2ᵉ bloc, modifie ton rôle… mais attention, il y a une
+      signature. Cherche s'il existe un moyen de la « désactiver ».
+    </p>
+  {% else %}
+    <p>Tu es admin. (Le flag s'affiche normalement via /vip directement.)</p>
+  {% endif %}
+</div>
+
+{% endblock %}

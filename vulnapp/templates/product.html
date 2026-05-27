@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}{{ product.name }}{% endblock %}
+{% block content %}
+
+<div class="card">
+  <h2>{{ product.name }} — {{ "%.2f"|format(product.price) }} €</h2>
+  <p>{{ product.description }}</p>
+  <p><a href="/shop">⬅ Retour à la boutique</a></p>
+</div>
+
+<div class="panel">
+  <h3>Commentaires ({{ comments|length }})</h3>
+  {% for c in comments %}
+    <div class="comment">
+      {# # [VULN A03] body rendu |safe -> XSS stocké (#20) #}
+      <div>{{ c.body|safe }}</div>
+      <div class="meta">par <strong>{{ c.author }}</strong> · {{ c.created_at }}</div>
+    </div>
+  {% else %}
+    <p><em>Aucun commentaire pour le moment.</em></p>
+  {% endfor %}
+
+  <h3 style="margin-top:1.4rem;">Laisser un commentaire</h3>
+  <form method="POST" action="{{ url_for('product', pid=product.id) }}">
+    <label>Pseudo
+      <input type="text" name="author" value="anon">
+    </label>
+    <label>Commentaire
+      <textarea name="body" required></textarea>
+    </label>
+    <button type="submit">Publier</button>
+  </form>
+
+  <p style="margin-top:1.4rem;">
+    <a href="/report/{{ product.id }}">🚩 Signaler cette page à un admin</a>
+    <span class="hint">— l'admin (bot) chargera la page pour vérifier.</span>
+  </p>
+</div>
+
+{% endblock %}

@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>{% block title %}La Carte au Trésor{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2310b981'/%3E%3Ctext x='16' y='22' font-size='18' text-anchor='middle' fill='%23042818' font-family='system-ui'%3E⚑%3C/text%3E%3C/svg%3E">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="inner">
+    <a href="/" class="brand">
+      <span class="logo">⚑</span>
+      <span>Carte<span style="color:var(--text-dim);">.au.trésor</span></span>
+    </a>
+    <nav>
+      <a href="/">Accueil</a>
+      <a href="/login">Connexion</a>
+      <a href="/profile?id=1">Profils</a>
+      <a href="/search">Recherche</a>
+      <a href="/shop">Boutique</a>
+      <a href="/product/1">Produits</a>
+      <a href="/vip">Salon VIP</a>
+    </nav>
+    <div class="session">
+      {% if session.username %}
+        <span class="dot"></span>
+        <span><strong style="color:var(--text);">{{ session.username }}</strong> · {{ session.role }}</span>
+        <a href="/logout" style="color:var(--text-faint);">Déconnexion</a>
+      {% else %}
+        <span class="dot anon"></span>
+        <span>anonyme</span>
+      {% endif %}
+    </div>
+  </div>
+</header>
+
+<main class="container">
+
+  {% with messages = get_flashed_messages() %}
+    {% for m in messages %}
+      <div class="flash">{{ m }}</div>
+    {% endfor %}
+  {% endwith %}
+
+  {% block content %}{% endblock %}
+
+</main>
+
+<footer class="bottombar">
+  Vulnapp pédagogique · 20 challenges OWASP Top 10 ·
+  ne JAMAIS exposer sur Internet
+</footer>
+
+</body>
+</html>

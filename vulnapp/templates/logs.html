@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Logs du serveur{% endblock %}
+{% block content %}
+
+<div class="card">
+  <h2>📜 Journal du serveur</h2>
+  <p class="hint">
+    [interne] Vue brute pour le SRE de garde. Aucun filtre.
+  </p>
+  <table>
+    <tr><th>Horodatage</th><th>Event</th><th>Détails</th></tr>
+    {% for l in logs %}
+      <tr>
+        <td><code>{{ l.ts }}</code></td>
+        <td>{{ l.event }}</td>
+        <td><code>{{ l.detail }}</code></td>
+      </tr>
+    {% endfor %}
+  </table>
+</div>
+
+{% endblock %}

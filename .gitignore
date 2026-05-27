@@ -1,0 +1,31 @@
+# =========================================================
+# Secrets / spoilers / doc interne — JAMAIS publier
+# =========================================================
+flags.txt
+GUIDE_PROF.md
+ctfd/
+
+# IDE / harness
+.claude/
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# Runtime / volumes
+vulnapp/data/
+*.sqlite
+*.sqlite-journal
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env locaux
+.env
+*.env.local
