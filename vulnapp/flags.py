@@ -35,6 +35,17 @@ _BASES = {
     "ssti_jinja_owned":            18,
     "ssrf_localhost_oracle":       19,
     "stored_xss_persistent_pain":  20,
+    # --- Bonus : hors OWASP Top 10 ---
+    "race_condition_double_spend":     21,
+    "crlf_injection_header_split":     22,
+    "host_header_poisoning":           23,
+    "mass_assignment_role_escalation": 24,
+    "insecure_random_predictable":     25,
+    "open_redirect_unvalidated":       26,
+    "timing_attack_side_channel":      27,
+    "eval_code_execution":             28,
+    "pickle_deserialization_rce":      29,
+    "redos_catastrophic_backtrack":    30,
 }
 
 STUDENT_ID = os.environ.get("STUDENT_ID", "").strip()

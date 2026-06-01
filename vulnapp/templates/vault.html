@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Coffre-fort{% endblock %}
+{% block content %}
+
+<section class="card">
+  <h2>Coffre-fort à clé secrète</h2>
+  <p style="color:var(--text-dim);">
+    Ce coffre est protégé par une clé secrète de 16 caractères.
+    Soumets-la via le paramètre <code>?key=</code> pour l'ouvrir.
+  </p>
+
+  <h3>Endpoint</h3>
+  <pre><code>GET /api/vault?key=MA_CLE_SECRETE</code></pre>
+
+  <p style="color:var(--text-dim);">
+    Indice : la clé est composée de lettres majuscules, chiffres et tirets.
+    Le serveur est… bavard sur le temps qu'il met à vérifier.
+  </p>
+
+  <h3>Essayer</h3>
+  <form method="get" action="/api/vault" style="display:flex; gap:0.5rem; max-width:500px;">
+    <input type="text" name="key" placeholder="XXXXXXXXXXXXXXXX" style="flex:1;">
+    <button type="submit">Ouvrir</button>
+  </form>
+</section>
+
+<p style="text-align:center;"><a href="/">← Retour à la carte</a></p>
+{% endblock %}

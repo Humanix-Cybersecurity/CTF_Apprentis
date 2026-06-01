@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Import de préférences{% endblock %}
+{% block content %}
+
+<section class="card">
+  <h2>Import / Export de préférences</h2>
+  <p style="color:var(--text-dim);">
+    Exporte tes préférences pour les sauvegarder, ou importe-les depuis
+    un autre navigateur. Le format est du Base64 sérialisé côté serveur.
+  </p>
+
+  {% if error %}<div class="flash" style="color:#f87171;">{{ error }}</div>{% endif %}
+  {% if imported %}<div class="flash">Préférences importées avec succès !</div>{% endif %}
+
+  <h3>Préférences actuelles</h3>
+  <table class="tbl">
+    {% for k, v in prefs.items() %}
+      <tr><td>{{ k }}</td><td>{{ v }}</td></tr>
+    {% endfor %}
+  </table>
+
+  <h3>Exporter (Base64)</h3>
+  <pre style="word-break:break-all; background:var(--bg-card); padding:1rem; border-radius:8px;"><code>{{ exported }}</code></pre>
+
+  <h3>Importer</h3>
+  <form method="post" style="display:grid; gap:0.8rem; max-width:600px;">
+    <label>Données Base64 :
+      <textarea name="data" rows="3" placeholder="Colle ici le Base64 exporté…" style="width:100%;"></textarea>
+    </label>
+    <button type="submit">Importer</button>
+  </form>
+</section>
+
+<p style="text-align:center;"><a href="/">← Retour à la carte</a></p>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Mot de passe oublié{% endblock %}
+{% block content %}
+
+<section class="card">
+  <h2>Mot de passe oublié</h2>
+  <p style="color:var(--text-dim);">
+    Entre ton nom d'utilisateur. Un lien de réinitialisation sera généré
+    (simulation — aucun e-mail n'est envoyé).
+  </p>
+
+  {% if message %}<div class="flash">{{ message }}</div>{% endif %}
+
+  <form method="post" style="display:grid; gap:0.8rem; max-width:400px;">
+    <label>Nom d'utilisateur :
+      <input type="text" name="username" value="captain" placeholder="captain">
+    </label>
+    <button type="submit">Générer le lien</button>
+  </form>
+
+  {% if link %}
+    <div style="margin-top:1rem; padding:1rem; background:var(--bg-card); border-radius:8px; word-break:break-all;">
+      <strong>Lien généré :</strong><br>
+      <code>{{ link }}</code>
+    </div>
+  {% endif %}
+</section>
+
+<p style="text-align:center;"><a href="/">← Retour à la carte</a></p>
+{% endblock %}

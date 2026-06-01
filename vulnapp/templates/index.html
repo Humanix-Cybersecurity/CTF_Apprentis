@@ -9,13 +9,13 @@
 <section class="hero">
   <h1>La <span class="accent">Carte au Trésor</span></h1>
   <p>
-    Une boutique d'aventurier en apparence paisible — sauf que <strong>20 trésors</strong>
-    (OWASP Top 10) sont cachés dans le code. À toi de les retrouver, un par un, et
+    Une boutique d'aventurier en apparence paisible — sauf que <strong>30 trésors</strong>
+    sont cachés dans le code. À toi de les retrouver, un par un, et
     de soumettre chaque flag dans le CTFd de ton prof.
   </p>
   <div class="badge-row">
-    <span class="badge accent">20 challenges</span>
-    <span class="badge info">OWASP Top 10 2021</span>
+    <span class="badge accent">30 challenges</span>
+    <span class="badge info">OWASP Top 10 + Bonus</span>
     <span class="badge">Hints gratuits</span>
     {% if student_id %}
       <span class="badge warn">mode anti-triche · {{ student_id }}</span>
@@ -29,7 +29,7 @@
   <div class="row" style="margin-bottom:0.4rem;">
     <h2 style="margin:0;">Lieux à explorer</h2>
     <span class="spacer"></span>
-    <span class="hint" style="margin:0;">12 points d'entrée visibles · d'autres sont cachés</span>
+    <span class="hint" style="margin:0;">22 points d'entrée visibles · d'autres sont cachés</span>
   </div>
 
   <div class="places">
@@ -80,6 +80,57 @@
     <a class="place" href="/download?file=manifest.txt">
       <div class="place-title"><span class="ico">📄</span> Manifeste</div>
       <small>Télécharger un fichier du navire</small>
+    </a>
+  </div>
+</section>
+
+<section class="panel">
+  <div class="row" style="margin-bottom:0.4rem;">
+    <h2 style="margin:0;">Bonus — Hors OWASP</h2>
+    <span class="spacer"></span>
+    <span class="hint" style="margin:0;">10 challenges pour les plus rapides</span>
+  </div>
+
+  <div class="places">
+    <a class="place" href="/transfer">
+      <div class="place-title"><span class="ico">💸</span> Transfert</div>
+      <small>Envoie de l'or entre comptes</small>
+    </a>
+    <a class="place" href="/setlang?lang=fr">
+      <div class="place-title"><span class="ico">🌐</span> Langue</div>
+      <small>Changer la langue du site</small>
+    </a>
+    <a class="place" href="/forgot">
+      <div class="place-title"><span class="ico">🔑</span> Mot de passe oublié</div>
+      <small>Réinitialiser un accès</small>
+    </a>
+    <a class="place" href="/api/profile/update">
+      <div class="place-title"><span class="ico">🛠️</span> API Profil</div>
+      <small>Modifier son profil via l'API</small>
+    </a>
+    <a class="place" href="/lottery">
+      <div class="place-title"><span class="ico">🎲</span> Loterie</div>
+      <small>Tente ta chance au tirage</small>
+    </a>
+    <a class="place" href="/goto?url=/">
+      <div class="place-title"><span class="ico">🔗</span> Raccourci</div>
+      <small>Redirection rapide</small>
+    </a>
+    <a class="place" href="/api/vault">
+      <div class="place-title"><span class="ico">🔐</span> Coffre-fort</div>
+      <small>Protégé par une clé secrète</small>
+    </a>
+    <a class="place" href="/calculate">
+      <div class="place-title"><span class="ico">🧮</span> Calculatrice</div>
+      <small>Évalue des expressions math</small>
+    </a>
+    <a class="place" href="/import_prefs">
+      <div class="place-title"><span class="ico">📦</span> Préférences</div>
+      <small>Importer / exporter ses réglages</small>
+    </a>
+    <a class="place" href="/validate_ship">
+      <div class="place-title"><span class="ico">🚢</span> Nom de navire</div>
+      <small>Valide ton nom de vaisseau</small>
     </a>
   </div>
 </section>

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Langue{% endblock %}
+{% block content %}
+
+<section class="card">
+  <h2>Paramètre de langue</h2>
+  <p>Langue actuelle : <code>{{ lang }}</code></p>
+  <p style="color:var(--text-dim);">
+    La langue est définie via le paramètre <code>?lang=</code> et propagée
+    dans un en-tête HTTP personnalisé <code>X-Custom-Lang</code>.
+  </p>
+  <p>
+    <a href="/setlang?lang=fr">Français</a> ·
+    <a href="/setlang?lang=en">English</a> ·
+    <a href="/setlang?lang=es">Español</a>
+  </p>
+</section>
+
+<p style="text-align:center;"><a href="/">← Retour à la carte</a></p>
+{% endblock %}

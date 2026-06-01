@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Calculatrice du bord{% endblock %}
+{% block content %}
+
+<section class="card">
+  <h2>Calculatrice du bord</h2>
+  <p style="color:var(--text-dim);">
+    Évalue des expressions mathématiques côté serveur.
+    Essaye : <code>2+2</code>, <code>7**3</code>, <code>__import__('math').pi</code>…
+  </p>
+
+  <form method="get" style="display:flex; gap:0.5rem; max-width:600px;">
+    <input type="text" name="expr" value="{{ expr or '' }}" placeholder="2 + 2" style="flex:1;">
+    <button type="submit">Calculer</button>
+  </form>
+
+  {% if result is not none %}
+    <div style="margin-top:1rem; padding:1rem; background:var(--bg-card); border-radius:8px;">
+      <strong>Résultat :</strong> <code>{{ result }}</code>
+    </div>
+  {% endif %}
+
+  {% if error %}
+    <div style="margin-top:1rem; padding:1rem; background:#1a0000; border:1px solid #f87171; border-radius:8px; overflow-x:auto;">
+      <strong style="color:#f87171;">Erreur :</strong>
+      <pre style="margin:0.5rem 0 0; white-space:pre-wrap; color:#fca5a5;">{{ error }}</pre>
+    </div>
+  {% endif %}
+</section>
+
+<p style="text-align:center;"><a href="/">← Retour à la carte</a></p>
+{% endblock %}

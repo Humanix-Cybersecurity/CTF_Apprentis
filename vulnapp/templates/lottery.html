@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Loterie du capitaine{% endblock %}
+{% block content %}
+
+<section class="card">
+  <h2>Loterie du capitaine</h2>
+  <p style="color:var(--text-dim);">
+    Devine le numéro gagnant (entre 1 et 100) et remporte le trésor !
+  </p>
+
+  <!-- Le serveur est très transparent sur son horloge… -->
+  <p>Horloge du serveur : <code id="server-ts">{{ server_time }}</code></p>
+
+  {% if result %}
+    <div class="flash" style="color:#f87171;">{{ result }}</div>
+  {% endif %}
+
+  <form method="post" style="display:grid; gap:0.8rem; max-width:300px;">
+    <label>Ton numéro (1–100) :
+      <input type="number" name="guess" min="1" max="100" required>
+    </label>
+    <button type="submit">Tenter ma chance</button>
+  </form>
+</section>
+
+<p style="text-align:center;"><a href="/">← Retour à la carte</a></p>
+{% endblock %}

@@ -14,9 +14,13 @@ import hashlib
 import hmac
 import json
 import os
+import pickle
+import random
+import re
 import sqlite3
 import threading
 import time
+import traceback
 
 import requests
 from flask import (Flask, abort, flash, jsonify, make_response, redirect,
@@ -35,6 +39,8 @@ app.secret_key = "treasure-map-not-so-secret"
 FLAGS = all_flags()
 # Le flag SSTI est exposé volontairement via app.config (challenge #18)
 app.config["FLAG_SSTI"] = FLAGS[18]
+# Le flag eval() est accessible via app.config (challenge #28)
+app.config["FLAG_CALC"] = FLAGS[28]
 
 DB_PATH = os.environ.get("DB_PATH", "/app/data/vulnapp.sqlite")
 DATA_DIR = os.path.dirname(DB_PATH)
@@ -627,6 +633,320 @@ def report(pid):
         hint="Le bot a chargé la page mais rien de suspect ne s'y est exécuté. "
              "Ton commentaire contient-il un payload JS ?",
     )
+
+
+# ===========================================================================
+# BONUS — 10 challenges hors OWASP Top 10 (#21 – #30)
+# ===========================================================================
+
+# ---------------------------------------------------------------------------
+# #21 — Race Condition (double-spend via TOCTOU)
+# ---------------------------------------------------------------------------
+@app.route("/transfer", methods=["GET", "POST"])
+def transfer():
+    conn = db()
+    users = [dict(r) for r in conn.execute(
+        "SELECT id, username, balance FROM users ORDER BY id"
+    ).fetchall()]
+
+    if request.method == "GET":
+        return render_template("transfer.html", users=users)
+
+    src = request.form.get("from_user", "")
+    dst = request.form.get("to_user", "")
+    try:
+        amount = float(request.form.get("amount", 0))
+    except ValueError:
+        return render_template("transfer.html", users=users, error="Montant invalide.")
+
+    src_row = conn.execute(
+        "SELECT id, balance FROM users WHERE username=?", (src,)
+    ).fetchone()
+    if not src_row:
+        return render_template("transfer.html", users=users, error="Utilisateur source inconnu.")
+
+    # # [VULN BONUS] TOCTOU — lecture du solde, pause, puis écriture sans verrou (#21)
+    balance = src_row["balance"]
+    time.sleep(0.5)
+
+    if balance < amount:
+        return render_template("transfer.html", users=users, error="Solde insuffisant.")
+
+    conn.execute("UPDATE users SET balance = balance - ? WHERE username=?", (amount, src))
+    conn.execute("UPDATE users SET balance = balance + ? WHERE username=?", (amount, dst))
+    conn.commit()
+
+    new_row = conn.execute(
+        "SELECT balance FROM users WHERE username=?", (src,)
+    ).fetchone()
+    if new_row and new_row["balance"] < 0:
+        return reveal(
+            "La course au trésor",
+            FLAGS[21],
+            "Tu as exploité une race condition (TOCTOU) : deux requêtes "
+            "concurrentes ont lu le même solde avant que la première ne l'écrive.",
+        )
+
+    users = [dict(r) for r in db().execute(
+        "SELECT id, username, balance FROM users ORDER BY id"
+    ).fetchall()]
+    return render_template(
+        "transfer.html", users=users,
+        success=f"Transfert de {amount:.2f} € de {src} vers {dst} effectué.",
+    )
+
+
+# ---------------------------------------------------------------------------
+# #22 — CRLF Injection (HTTP Response Splitting)
+# ---------------------------------------------------------------------------
+@app.route("/setlang")
+def setlang():
+    lang = request.args.get("lang", "fr")
+    # # [VULN BONUS] CRLF — le paramètre lang est injecté dans un en-tête sans filtrage (#22)
+    if any(c in lang for c in ("\r", "\n", "%0d", "%0D", "%0a", "%0A")):
+        return reveal(
+            "Le messager corrompu",
+            FLAGS[22],
+            "Tu as injecté des caractères CR/LF dans un en-tête HTTP. "
+            "En production, cela permet d'ajouter des en-têtes arbitraires "
+            "(Set-Cookie, Location…) voire de couper la réponse en deux.",
+        )
+    resp = make_response(render_template("setlang.html", lang=lang))
+    resp.headers.add("X-Custom-Lang", lang)
+    return resp
+
+
+# ---------------------------------------------------------------------------
+# #23 — Host Header Poisoning
+# ---------------------------------------------------------------------------
+@app.route("/forgot", methods=["GET", "POST"])
+def forgot():
+    if request.method == "GET":
+        return render_template("forgot.html")
+
+    username = request.form.get("username", "")
+    # # [VULN BONUS] Le lien de reset est construit à partir du Host header (#23)
+    host = request.headers.get("Host", "localhost:8080")
+    token = hashlib.md5(f"{username}-reset".encode()).hexdigest()[:12]
+    link = f"http://{host}/reset_password?user={username}&token={token}"
+
+    if "localhost" not in host and "127.0.0.1" not in host:
+        return reveal(
+            "Le pigeon empoisonné",
+            FLAGS[23],
+            "Tu as forgé le header Host pour que le lien de reset pointe "
+            "vers TON serveur. La victime clique → tu récupères le token.",
+        )
+
+    return render_template("forgot.html", link=link,
+                           message=f"Lien de réinitialisation généré (simulé) pour « {username} ».")
+
+
+# ---------------------------------------------------------------------------
+# #24 — Mass Assignment
+# ---------------------------------------------------------------------------
+@app.route("/api/profile/update", methods=["POST"])
+def api_profile_update():
+    data = request.get_json(force=True)
+    uid = data.pop("id", 1)
+
+    # # [VULN BONUS] Mass assignment — tous les champs JSON sont appliqués, y compris role (#24)
+    conn = db()
+    updatable = {"username", "email", "role", "balance", "note"}
+    for key, val in data.items():
+        if key in updatable:
+            conn.execute(f"UPDATE users SET {key}=? WHERE id=?", (val, uid))
+    conn.commit()
+
+    if data.get("role") == "admin":
+        return jsonify({
+            "status": "updated",
+            "flag": FLAGS[24],
+            "message": "Mass assignment → privilege escalation ! "
+                       "L'API accepte aveuglément le champ « role ».",
+        })
+
+    row = conn.execute("SELECT * FROM users WHERE id=?", (uid,)).fetchone()
+    return jsonify({"status": "updated", "user": dict(row) if row else None})
+
+
+@app.route("/api/profile/update", methods=["GET"])
+def api_profile_update_doc():
+    return render_template("mass_assign.html")
+
+
+# ---------------------------------------------------------------------------
+# #25 — Insecure Randomness (PRNG prédictible)
+# ---------------------------------------------------------------------------
+@app.route("/lottery", methods=["GET", "POST"])
+def lottery():
+    ts = int(time.time())
+    # # [VULN BONUS] seed = timestamp courant → résultat 100 % prédictible (#25)
+    rng = random.Random(ts)
+    winning = rng.randint(1, 100)
+
+    result = None
+    if request.method == "POST":
+        try:
+            guess = int(request.form.get("guess", 0))
+        except ValueError:
+            guess = -1
+        if guess == winning:
+            return reveal(
+                "Le dé pipé",
+                FLAGS[25],
+                "Le PRNG était seedé avec time() — en reproduisant le seed "
+                "côté client au même instant, tu prédis le résultat à coup sûr.",
+            )
+        result = f"Perdu ! Le numéro gagnant était {winning}."
+
+    return render_template("lottery.html", result=result, server_time=ts)
+
+
+# ---------------------------------------------------------------------------
+# #26 — Open Redirect
+# ---------------------------------------------------------------------------
+@app.route("/goto")
+def goto():
+    url = request.args.get("url", "/")
+    # # [VULN BONUS] Aucune validation de la cible de redirection (#26)
+    if url.startswith(("http://", "https://", "//")):
+        if "localhost" not in url and "127.0.0.1" not in url:
+            return reveal(
+                "Le phare trompeur",
+                FLAGS[26],
+                "Aucune whitelist : tu rediriges l'utilisateur vers n'importe "
+                "quel domaine. Parfait pour le phishing « via un lien légitime ».",
+            )
+    return redirect(url)
+
+
+# ---------------------------------------------------------------------------
+# #27 — Timing Side-Channel
+# ---------------------------------------------------------------------------
+VAULT_KEY = "TREASURE-KEY-2026"
+
+
+@app.route("/api/vault")
+def api_vault():
+    key = request.args.get("key", "")
+    if not key:
+        return render_template("vault.html")
+
+    # # [VULN BONUS] Comparaison caractère par caractère avec délai amplifié (#27)
+    for i in range(min(len(key), len(VAULT_KEY))):
+        if key[i] != VAULT_KEY[i]:
+            return jsonify({"error": "Clé invalide."}), 401
+        time.sleep(0.08)
+
+    if len(key) != len(VAULT_KEY):
+        return jsonify({"error": "Clé invalide."}), 401
+
+    return reveal(
+        "Le coffre à retardement",
+        FLAGS[27],
+        "La comparaison caractère par caractère fuit le nombre de bons "
+        "caractères via le temps de réponse. Attaque de timing classique.",
+    )
+
+
+# ---------------------------------------------------------------------------
+# #28 — Code Execution via eval()
+# ---------------------------------------------------------------------------
+@app.route("/calculate")
+def calculate():
+    expr = request.args.get("expr", "")
+    if not expr:
+        return render_template("calculate.html")
+
+    # # [VULN BONUS] eval() sur entrée utilisateur → exécution de code arbitraire (#28)
+    try:
+        result = eval(expr)
+    except Exception:
+        tb = traceback.format_exc()
+        return render_template("calculate.html", expr=expr, error=tb)
+
+    if isinstance(result, str) and "HUMANIX{" in result:
+        return reveal(
+            "La boîte de Pandore",
+            FLAGS[28],
+            "eval() sur une entrée utilisateur = exécution de code arbitraire. "
+            "Un attaquant peut lire des fichiers, des variables internes, "
+            "ou lancer un reverse shell.",
+        )
+
+    return render_template("calculate.html", expr=expr, result=str(result))
+
+
+# ---------------------------------------------------------------------------
+# #29 — Insecure Deserialization (Pickle)
+# ---------------------------------------------------------------------------
+@app.route("/import_prefs", methods=["GET", "POST"])
+def import_prefs():
+    default_prefs = {"theme": "pirate", "lang": "fr", "notifications": True}
+
+    if request.method == "GET":
+        exported = base64.b64encode(pickle.dumps(default_prefs)).decode()
+        return render_template("import_prefs.html", prefs=default_prefs, exported=exported)
+
+    data = request.form.get("data", "")
+    try:
+        # # [VULN BONUS] pickle.loads() sur entrée utilisateur → RCE (#29)
+        prefs = pickle.loads(base64.b64decode(data))
+    except Exception as e:
+        return render_template("import_prefs.html", prefs=default_prefs,
+                               exported=base64.b64encode(pickle.dumps(default_prefs)).decode(),
+                               error=f"Import échoué : {e}")
+
+    if isinstance(prefs, dict) and (prefs.get("role") == "admin" or prefs.get("pwned")):
+        return reveal(
+            "Le colis piégé",
+            FLAGS[29],
+            "pickle.loads() désérialise du code arbitraire. Avec __reduce__, "
+            "un attaquant exécute n'importe quelle commande système.",
+        )
+
+    if not isinstance(prefs, dict):
+        return reveal(
+            "Le colis piégé",
+            FLAGS[29],
+            "pickle.loads() a exécuté du code — le résultat n'est même plus un dict.",
+        )
+
+    exported = base64.b64encode(pickle.dumps(default_prefs)).decode()
+    return render_template("import_prefs.html", prefs=prefs, exported=exported, imported=True)
+
+
+# ---------------------------------------------------------------------------
+# #30 — ReDoS (Regular Expression Denial of Service)
+# ---------------------------------------------------------------------------
+SHIP_NAME_RE = re.compile(r"^([a-z]+)+$")
+
+
+@app.route("/validate_ship", methods=["GET", "POST"])
+def validate_ship():
+    result = None
+    elapsed = None
+    if request.method == "POST":
+        name = request.form.get("name", "")
+        start = time.monotonic()
+        try:
+            match = bool(SHIP_NAME_RE.match(name))
+        except Exception:
+            match = False
+        elapsed = time.monotonic() - start
+
+        # # [VULN BONUS] regex ^([a-z]+)+$ → backtracking exponentiel (#30)
+        if elapsed > 2.0:
+            return reveal(
+                "L'ancre qui coule",
+                FLAGS[30],
+                "La regex ^([a-z]+)+$ provoque un backtracking exponentiel "
+                "sur une entrée comme « aaa…aaa! ». C'est un ReDoS.",
+            )
+        result = "Nom valide ✓" if match else "Nom invalide ✗"
+
+    return render_template("validate_ship.html", result=result, elapsed=elapsed)
 
 
 # ---------------------------------------------------------------------------

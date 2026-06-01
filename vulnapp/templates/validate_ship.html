@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Validation de nom{% endblock %}
+{% block content %}
+
+<section class="card">
+  <h2>Validateur de nom de navire</h2>
+  <p style="color:var(--text-dim);">
+    Vérifie que ton nom de navire ne contient que des lettres minuscules.
+    Le serveur utilise une expression régulière pour le valider.
+  </p>
+
+  {% if result %}
+    <div class="flash">{{ result }}
+      {% if elapsed is not none %} <small>({{ "%.4f"|format(elapsed) }}s)</small>{% endif %}
+    </div>
+  {% endif %}
+
+  <form method="post" style="display:grid; gap:0.8rem; max-width:400px;">
+    <label>Nom du navire :
+      <input type="text" name="name" placeholder="blackpearl" value="">
+    </label>
+    <button type="submit">Valider</button>
+  </form>
+
+  <p style="color:var(--text-faint); margin-top:1rem;">
+    Regex utilisée : <code>^([a-z]+)+$</code>
+  </p>
+</section>
+
+<p style="text-align:center;"><a href="/">← Retour à la carte</a></p>
+{% endblock %}
