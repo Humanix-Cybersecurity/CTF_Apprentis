@@ -666,20 +666,30 @@ def transfer():
         return render_template("transfer.html", users=users, error="Utilisateur source inconnu.")
 
     # # [VULN BONUS] TOCTOU — lecture du solde, pause, puis écriture sans verrou (#21)
-    balance = src_row["balance"]
-    time.sleep(0.5)
+    balance_before = src_row["balance"]
+    time.sleep(1.5)
 
-    if balance < amount:
+    if balance_before < amount:
         return render_template("transfer.html", users=users, error="Solde insuffisant.")
 
     conn.execute("UPDATE users SET balance = balance - ? WHERE username=?", (amount, src))
     conn.execute("UPDATE users SET balance = balance + ? WHERE username=?", (amount, dst))
     conn.commit()
 
-    new_row = conn.execute(
+    # Pause post-commit : laisse le temps à une éventuelle requête concurrente
+    # de finaliser son propre transfert avant qu'on relise le solde.
+    time.sleep(2)
+
+    # Relecture du solde réel après commit + pause
+    new_row = db().execute(
         "SELECT balance FROM users WHERE username=?", (src,)
     ).fetchone()
-    if new_row and new_row["balance"] < 0:
+    actual_balance = new_row["balance"] if new_row else 0
+    expected_balance = balance_before - amount
+
+    # Trigger : le solde réel est inférieur à ce qu'on attendait (quelqu'un d'autre
+    # a aussi retiré pendant notre fenêtre TOCTOU) OU le solde est négatif
+    if actual_balance < expected_balance or actual_balance < 0:
         return reveal(
             "La course au trésor",
             FLAGS[21],
