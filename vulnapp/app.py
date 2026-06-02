@@ -649,7 +649,17 @@ def transfer():
         "SELECT id, username, balance FROM users ORDER BY id"
     ).fetchall()]
 
+    # Check au chargement : si un utilisateur a un solde négatif, la race
+    # condition a déjà été exploitée → on affiche le flag directement.
     if request.method == "GET":
+        neg = [u for u in users if u["balance"] < 0]
+        if neg:
+            return reveal(
+                "La course au trésor",
+                FLAGS[21],
+                f"Le solde de « {neg[0]['username']} » est à {neg[0]['balance']:.2f} €. "
+                "Race condition (TOCTOU) déjà exploitée !",
+            )
         return render_template("transfer.html", users=users)
 
     src = request.form.get("from_user", "")
