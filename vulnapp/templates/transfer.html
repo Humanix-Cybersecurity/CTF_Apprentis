@@ -5,7 +5,9 @@
 <section class="card">
   <h2>Transfert de doublons</h2>
   <p style="color:var(--text-dim);">
-    Envoie de l'or d'un compte à un autre. Le trésorier a un joli pactole…
+    Les transferts d'or entre comptes. Le système lit le solde, attend, puis écrit.
+    Que se passe-t-il si deux requêtes arrivent en même temps ? C'est ainsi que
+    3 000 doublons ont disparu trois nuits de suite du coffre principal.
   </p>
 
   {% if error %}<div class="flash" style="color:#f87171;">{{ error }}</div>{% endif %}

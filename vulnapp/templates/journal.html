@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block title %}Journal de bord — La Disparition du Capitaine{% endblock %}
+{% block content %}
+
+<section class="hero journal-hero">
+  <h1>Journal de <span class="accent">Bord</span></h1>
+  <p>
+    Nuit du 27 mai 2026. Le capitaine a disparu. Son dernier message chiffré
+    mentionne une mutinerie. En tant que mousse fraîchement embarqué, tu dois
+    exploiter les systèmes défaillants du navire pour reconstituer la vérité.
+  </p>
+  <p style="color: var(--warn); font-style: italic; font-size: 0.92rem;">
+    « Le trésor n'est pas l'or. Le trésor, c'est la vérité. » — Dernier message du capitaine
+  </p>
+  <div class="progress-global">
+    <div class="progress-bar">
+      <div class="progress-fill" style="width: {{ (solved_count / total * 100)|int }}%"></div>
+    </div>
+    <span class="hint" style="font-style: normal;">{{ solved_count }} / {{ total }} indices découverts</span>
+  </div>
+</section>
+
+{% for act in acts %}
+<section class="panel act-panel">
+  <div class="act-header">
+    <h2>{{ act.title }}</h2>
+    <p class="hint" style="margin: 0;">{{ act.subtitle }}</p>
+    {% set ns = namespace(act_solved=0) %}
+    {% for cid in act.challenges %}
+      {% if cid in solved_ids %}{% set ns.act_solved = ns.act_solved + 1 %}{% endif %}
+    {% endfor %}
+    <div class="progress-bar small" style="margin-top: 0.6rem;">
+      <div class="progress-fill" style="width: {{ (ns.act_solved / 10 * 100)|int }}%"></div>
+    </div>
+    <span class="hint" style="font-style: normal; font-size: 0.8rem;">{{ ns.act_solved }} / 10</span>
+  </div>
+
+  <div class="fragments-grid">
+    {% for cid in act.challenges %}
+    <div class="fragment {{ 'unlocked' if cid in solved_ids else 'locked' }}">
+      <div class="fragment-header">
+        <span class="fragment-num">#{{ cid }}</span>
+        <span class="fragment-title">{{ titles.get(cid, '') }}</span>
+        {% if cid in solved_ids %}
+          <span class="badge accent" style="margin-left: auto;">Découvert</span>
+          <span class="hint" style="font-size: 0.72rem; margin-left: 0.4rem;">{{ solved_times.get(cid, '') }}</span>
+        {% else %}
+          <span class="badge" style="margin-left: auto;">Verrouillé</span>
+        {% endif %}
+      </div>
+      {% if cid in solved_ids %}
+        <div class="fragment-text">{{ fragments.get(cid, '') }}</div>
+      {% else %}
+        <div class="fragment-text locked-text">
+          &#x1f512; Résous le challenge #{{ cid }} pour révéler cet indice.
+        </div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+
+  {% if ns.act_solved == 10 %}
+  <div class="act-epilogue">
+    {% if loop.index == 1 %}
+      <strong>Acte I terminé.</strong> Tu connais l'équipage et leurs faiblesses.
+      La sécurité du navire est une passoire. Les profils révèlent des tensions,
+      les mots de passe sont risibles, et l'API expose tout.
+      Mais ce n'est que la surface. Les vrais secrets sont plus profonds.
+    {% elif loop.index == 2 %}
+      <strong>Acte II terminé.</strong> Les preuves sont accablantes.
+      Des transferts frauduleux, des logs effacés, un token de reset volé,
+      des scripts malveillants injectés. La mutinerie n'est plus une hypothèse —
+      c'est une certitude. Mais qui tire les ficelles ?
+    {% elif loop.index == 3 %}
+      <strong>Acte III terminé.</strong> Tu as percé tous les secrets du navire.
+      La vérité complète est révélée dans le dernier fragment.
+      Le capitaine n'est pas mort — il a fui pour survivre,
+      et il t'a laissé la clé de tout.
+    {% endif %}
+  </div>
+  {% endif %}
+
+</section>
+{% endfor %}
+
+{% if solved_count == 30 %}
+<section class="panel final-reveal-panel">
+  <div class="reveal" style="margin: 0;">
+    <div class="icon-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M5 3v18"/>
+        <path d="M5 3h12l-2 5 2 5H5"/>
+      </svg>
+    </div>
+    <div class="label">Enquête terminée</div>
+    <h2>La Disparition du Capitaine — Résolu</h2>
+    <p style="color: var(--text-dim); max-width: 55ch; margin: 0 auto; font-style: italic;">
+      Tu as reconstitué toute l'histoire. 30 failles exploitées, 30 fragments assemblés.
+      Le capitaine serait fier de toi, mousse. Le trésor, c'est la vérité —
+      et maintenant, tu la connais.
+    </p>
+  </div>
+</section>
+{% endif %}
+
+<p style="text-align:center; margin-top:1.5rem;">
+  <a href="/">← Retour à la carte</a>
+</p>
+
+{% endblock %}

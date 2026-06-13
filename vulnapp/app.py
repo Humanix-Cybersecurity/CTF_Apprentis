@@ -1,6 +1,6 @@
 """
-Vulnapp — La Carte au Trésor
-20 vulnérabilités OWASP Top 10 pédagogiques.
+Vulnapp — La Carte au Trésor : La Disparition du Capitaine
+30 vulnérabilités pédagogiques (OWASP Top 10 + Bonus).
 
 Chaque vulnérabilité est annotée par un commentaire « # [VULN A0X] ... »
 pour que le prof puisse la pointer en classe et que l'élève puisse, après
@@ -53,18 +53,224 @@ def db():
     return conn
 
 
+# ---------------------------------------------------------------------------
+# Fragments narratifs — chaque challenge débloque un morceau de l'histoire
+# ---------------------------------------------------------------------------
+STORY_FRAGMENTS = {
+    1: ("En parcourant les profils de l'équipage, tu découvres le compte du trésorier : "
+        "9 999 doublons. Son coffre mentionne des transferts vers « isle_tortue_42 ». "
+        "D'où vient cette fortune ? Le capitaine n'a, lui, que 0 doublons."),
+
+    2: ("Derrière le code source et le robots.txt, tu trouves un passage secret. "
+        "Le navire cache des recoins que personne n'est censé connaître. "
+        "Si la sécurité est aussi faible ici, que cache le reste du système ?"),
+
+    3: ("Le compte admin — celui du Second — utilise encore « admin/admin ». "
+        "Le Second est censé protéger le navire. Soit c'est de la négligence criminelle, "
+        "soit il VEUT que quelqu'un puisse entrer."),
+
+    4: ("L'endpoint /debug est resté ouvert. Les variables d'environnement, les routes internes — "
+        "tout est exposé. Le Second n'a jamais désactivé le mode debug. "
+        "Une note datée de janvier 2025 dit : « TODO : désactiver en prod. » 18 mois. Aucune action."),
+
+    5: ("Le moteur de recherche ne filtre rien. N'importe quel script s'exécute dans la page. "
+        "Quelqu'un pourrait injecter du code pour espionner les sessions de l'équipage. "
+        "Qui a conçu un système aussi fragile ? Le Second, encore."),
+
+    6: ("La serrure du navire est en sucre. Une injection SQL dans le formulaire de connexion "
+        "permet de se connecter sans mot de passe. N'importe qui pouvait entrer dans n'importe "
+        "quel compte, y compris celui du capitaine."),
+
+    7: ("Le capitaine a laissé un « message chiffré » dans une bouteille. Mais ce n'est que "
+        "du Base64 — pas du chiffrement. Son contenu est lisible par quiconque regarde de près. "
+        "Quel était ce message que le capitaine croyait protégé ?"),
+
+    8: ("Le salon VIP est protégé par un jeton JWT. Mais le serveur accepte l'algorithme « none » — "
+        "la signature est ignorée. N'importe qui peut forger un jeton admin. "
+        "C'est ainsi que quelqu'un a usurpé les privilèges du capitaine."),
+
+    9: ("L'API /api/users expose tout : mots de passe en clair, notes privées, soldes. "
+        "Le message privé du capitaine est là, pour qui sait le chercher. "
+        "Il parle de mutinerie, de détournements, de trois complices."),
+
+    10: ("La boutique accepte des quantités négatives. La logique métier est brisée. "
+         "Le trésorier a-t-il utilisé cette faille pour générer des fonds fictifs ? "
+         "9 999 doublons ne sortent pas de nulle part."),
+
+    11: ("En traversant les répertoires du serveur, tu trouves un fichier secret — "
+         "le manifeste caché du navire. Il révèle que le canot de sauvetage #3 a été "
+         "détaché la nuit du 27 mai. Quelqu'un est parti. Ou quelqu'un a été forcé de partir."),
+
+    12: ("Le compte de Bob est tombé en 200 millisecondes : pas de rate-limit, pas de captcha. "
+         "Bob est un matelot négligent, pas un conspirateur. Mais sa session a servi de couverture — "
+         "quelqu'un s'est connecté depuis son poste à 6h30 le 27 mai."),
+
+    13: ("Via une injection UNION dans la bibliothèque, tu as accédé à la table « secrets ». "
+         "Le navire a une base de données cachée. Qu'y a-t-il d'autre dans ces tables que "
+         "l'équipage ne devait pas voir ?"),
+
+    14: ("Le hash MD5 du mot de passe tombe en quelques secondes. Aucun sel, aucun facteur de coût. "
+         "Les mots de passe de l'équipage étaient aussi fragiles que des châteaux de sable. "
+         "Quiconque avait accès aux hash pouvait prendre l'identité de n'importe qui."),
+
+    15: ("L'API /api/me renvoie une note interne. Et les headers CORS autorisent toute origine. "
+         "Un site externe malveillant pourrait aspirer les données de l'équipage à distance. "
+         "Diana, la navigatrice, avait accès à « tout » — y compris les communications."),
+
+    16: ("Le coupon WELCOME10 est réutilisable à l'infini. En empilant les réductions, "
+         "on obtient tout gratuitement. Le trésorier connaissait cette faille — c'est ainsi "
+         "qu'il a acquis du matériel sans débourser un doublon."),
+
+    17: ("Les logs du serveur sont publics. Et dans ces logs, le token de réinitialisation "
+         "du capitaine est écrit en clair. Quelqu'un a demandé un reset depuis l'IP du Second "
+         "à 7h15 le 27 mai — deux heures avant la disparition."),
+
+    18: ("Le système d'aperçu (preview) est vulnérable au SSTI. En injectant du code Jinja, "
+         "tu accèdes aux variables internes du serveur. C'est par cette faille que le "
+         "conspirateur a lu les configurations secrètes du navire."),
+
+    19: ("Le « pigeon voyageur » (SSRF) permet de contacter le service interne du navire. "
+         "Un service caché sur le port 8081, accessible uniquement depuis le serveur. "
+         "Le Second savait qu'il existait. Il l'utilisait pour ses communications privées."),
+
+    20: ("Un script malveillant injecté dans les commentaires persiste dans la page produit. "
+         "Quand l'admin (le Second) visite la page, le script s'exécute dans sa session. "
+         "C'est peut-être ainsi que le complot a dérobé les cookies du capitaine."),
+
+    21: ("Deux transferts simultanés ont vidé un compte. La condition de course (TOCTOU) "
+         "a été exploitée — le solde a été lu deux fois avant d'être modifié. "
+         "C'est exactement comment 3 000 doublons ont disparu du coffre principal "
+         "trois nuits de suite, sans que les comptes ne semblent bouger."),
+
+    22: ("L'injection CRLF dans les en-têtes HTTP permet de forger des réponses arbitraires. "
+         "On pourrait injecter un Set-Cookie piégé, rediriger discrètement un marin "
+         "vers une fausse page de connexion. Un outil parfait pour un mutiniste patient."),
+
+    23: ("Le système de réinitialisation de mot de passe fait confiance au header Host. "
+         "En le forgeant, le lien de reset pointe vers un serveur attaquant. "
+         "Le token du capitaine, leaké dans les logs, combiné à cette technique — "
+         "le Second pouvait prendre le contrôle du compte du capitaine à tout moment."),
+
+    24: ("L'API de mise à jour de profil accepte aveuglément le champ « role ». "
+         "Mass assignment : n'importe qui peut se promouvoir admin. "
+         "Charlie, le quartier-maître, a changé son rôle en silence le 26 mai. "
+         "Le lendemain, il validait les transferts du trésorier sans double signature."),
+
+    25: ("La loterie utilise time() comme seed du générateur aléatoire. "
+         "Le résultat est 100 % prédictible. Le trésorier ne jouait jamais au hasard — "
+         "il connaissait les résultats à l'avance. Ses « gains » étaient une façade."),
+
+    26: ("La redirection ouverte permet d'envoyer un matelot vers n'importe quel site externe "
+         "via un lien qui semble venir du navire. Phishing parfait. "
+         "Diana a envoyé un lien de ce type au capitaine le 26 mai au soir : "
+         "« Consultez ce rapport de navigation. » Le capitaine a cliqué."),
+
+    27: ("La comparaison caractère par caractère de la clé du coffre-fort fuit le nombre de "
+         "bons caractères via le temps de réponse. Avec patience, on reconstitue la clé entière. "
+         "Le coffre-fort du capitaine a été ouvert sans jamais forcer la serrure. "
+         "Son journal privé — lu, copié, puis remis en place."),
+
+    28: ("eval() sur une entrée utilisateur donne une exécution de code arbitraire. "
+         "On peut lire des fichiers, des variables internes, lancer des commandes système. "
+         "Le conspirateur a utilisé cette faille pour lire le journal chiffré du capitaine "
+         "et découvrir qu'il savait tout sur les détournements."),
+
+    29: ("La désérialisation Pickle permet l'exécution de code distant. Avec __reduce__, "
+         "n'importe quelle commande système est à portée. C'est l'arme finale : "
+         "le comploteur a injecté un payload dans les préférences du capitaine "
+         "pour effacer les preuves de sa machine."),
+
+    30: ("LA VÉRITÉ — La regex catastrophique a mis le serveur à genoux. Pendant ces secondes "
+         "de gel, plus aucune alerte, plus aucun log. C'est dans ce trou noir que tout s'est joué.\n\n"
+         "LE VERDICT : Le trésorier détournait l'or depuis des mois vers l'Isle de la Tortue. "
+         "Charlie, le quartier-maître, couvrait les traces en effaçant les logs. "
+         "Et Diana, la navigatrice, a fourni l'accès — elle avait les clés de tout, "
+         "et c'est elle qui a envoyé le lien piégé au capitaine.\n\n"
+         "Le Second (admin) ? Complice par négligence. Ses mots de passe par défaut, "
+         "ses TODO jamais faits, ses alertes désactivées — sans sa paresse, rien n'aurait "
+         "été possible.\n\n"
+         "Edgar ? Il savait. Ses « ... » étaient un silence délibéré. Il a vu, il n'a rien dit. "
+         "Son carnet aux pages arrachées contient la preuve — mais il a choisi de se taire.\n\n"
+         "Alice ? La seule vraiment loyale. Elle a vu la lumière dans la cale. "
+         "Elle a noté l'anomalie. Mais elle a eu peur.\n\n"
+         "Le capitaine n'est pas mort. Il a découvert le complot, laissé des indices "
+         "dans chaque recoin du système, puis pris le canot #3 avant qu'on ne le fasse taire. "
+         "Son dernier message : « Le trésor n'est pas l'or. Le trésor, c'est la vérité. "
+         "Et maintenant, mousse, tu la connais. »"),
+}
+
+CHALLENGE_TITLES = {
+    1: "IDOR — Profil du trésorier",
+    2: "Données cachées — robots.txt",
+    3: "Credentials par défaut",
+    4: "Debug endpoint exposé",
+    5: "XSS reflété",
+    6: "Injection SQL — login",
+    7: "Base64 « chiffrement »",
+    8: "JWT alg:none",
+    9: "API leak — /api/users",
+    10: "Quantité négative",
+    11: "Path traversal",
+    12: "Brute force — Bob",
+    13: "SQLi UNION — bibliothèque",
+    14: "MD5 sans sel",
+    15: "CORS misconfiguration",
+    16: "Coupon stacking",
+    17: "Logs exposés + token reset",
+    18: "SSTI Jinja",
+    19: "SSRF — service interne",
+    20: "XSS stocké",
+    21: "Race condition (TOCTOU)",
+    22: "CRLF Injection",
+    23: "Host Header Poisoning",
+    24: "Mass Assignment",
+    25: "PRNG prédictible",
+    26: "Open Redirect",
+    27: "Timing Side-Channel",
+    28: "eval() — code execution",
+    29: "Pickle deserialization",
+    30: "ReDoS",
+}
+
+
 def bootstrap():
     """Crée la base + les fichiers cibles si absents."""
     if not os.path.exists(DB_PATH):
         from seed import build
         build(FLAGS)
     os.makedirs(DATA_DIR, exist_ok=True)
+
+    # Table solved pour le journal de bord (compatible DB existantes)
+    conn = sqlite3.connect(DB_PATH)
+    conn.execute("""CREATE TABLE IF NOT EXISTS solved (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        challenge_id INTEGER UNIQUE,
+        solved_at TEXT
+    )""")
+    conn.commit()
+    conn.close()
+
     # Fichier "légitime" pour /download (#11)
     with open(os.path.join(DATA_DIR, "manifest.txt"), "w") as f:
         f.write(
             "Manifeste du navire « La Carte au Trésor »\n"
-            "- 1 capitaine\n- 2 mousses\n- 17 tonneaux de rhum\n"
-            "- 1 perroquet (Roger)\n"
+            "Dernière mise à jour : 27 mai 2026, 06h00\n"
+            "---\n"
+            "Équipage :\n"
+            "- 1 capitaine (ABSENT depuis le 27/05 09h07)\n"
+            "- 1 second (admin) — commandement par intérim\n"
+            "- 1 trésorier — gestion des fonds\n"
+            "- 1 quartier-maître (charlie) — gestion des logs\n"
+            "- 1 navigatrice (diana) — accès total aux systèmes\n"
+            "- 1 vigie (alice) — quart de nuit\n"
+            "- 1 matelot (bob) — entretien du pont\n"
+            "- 1 charpentier (edgar) — réparations (silencieux)\n"
+            "---\n"
+            "Cargaison : 17 tonneaux de rhum, 1 perroquet (Roger)\n"
+            "Canots : #1 OK, #2 OK, #3 MANQUANT depuis le 27/05\n"
+            "---\n"
+            "Note du Second : « Le capitaine est en mission secrète.\n"
+            "Ne posez pas de questions. Continuez le cap. »\n"
         )
     # Le fichier que l'élève doit atteindre via path traversal (#11)
     secret_path = os.path.join(APP_ROOT, "SECRET_FLAG.txt")
@@ -104,10 +310,27 @@ def start_internal_server():
 
 
 # ---------------------------------------------------------------------------
-# Helper de récompense visuelle
+# Helper de récompense visuelle + tracking
 # ---------------------------------------------------------------------------
-def reveal(title, flag_value, hint=""):
-    return render_template("reveal.html", title=title, flag=flag_value, hint=hint)
+def mark_solved(challenge_id):
+    try:
+        conn = db()
+        conn.execute(
+            "INSERT OR IGNORE INTO solved(challenge_id, solved_at) VALUES (?, ?)",
+            (challenge_id, time.strftime("%Y-%m-%d %H:%M:%S")),
+        )
+        conn.commit()
+    except Exception:
+        pass
+
+
+def reveal(title, flag_value, hint="", challenge_id=None, story_fragment=""):
+    if challenge_id:
+        mark_solved(challenge_id)
+    return render_template(
+        "reveal.html", title=title, flag=flag_value, hint=hint,
+        story_fragment=story_fragment,
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -120,6 +343,48 @@ def index():
         user=session.get("username"),
         role=session.get("role"),
         student_id=STUDENT_ID,
+    )
+
+
+# ---------------------------------------------------------------------------
+# Journal de bord — progression narrative
+# ---------------------------------------------------------------------------
+@app.route("/journal")
+def journal():
+    conn = db()
+    solved_rows = conn.execute(
+        "SELECT challenge_id, solved_at FROM solved ORDER BY challenge_id"
+    ).fetchall()
+    solved_ids = {r["challenge_id"] for r in solved_rows}
+    solved_times = {r["challenge_id"]: r["solved_at"] for r in solved_rows}
+
+    acts = [
+        {
+            "title": "Acte I — Monter à bord",
+            "subtitle": "Découverte de l'équipage et des failles",
+            "challenges": list(range(1, 11)),
+        },
+        {
+            "title": "Acte II — La Mutinerie",
+            "subtitle": "Les preuves s'accumulent",
+            "challenges": list(range(11, 21)),
+        },
+        {
+            "title": "Acte III — Le Trésor caché",
+            "subtitle": "La vérité éclate",
+            "challenges": list(range(21, 31)),
+        },
+    ]
+
+    return render_template(
+        "journal.html",
+        acts=acts,
+        solved_ids=solved_ids,
+        solved_times=solved_times,
+        fragments=STORY_FRAGMENTS,
+        titles=CHALLENGE_TITLES,
+        total=30,
+        solved_count=len(solved_ids),
     )
 
 
@@ -143,6 +408,7 @@ def secret_stash():
         "Le coffre dans les pages cachées",
         FLAGS[2],
         "Tu as lu ce que les humains ne lisent jamais : view-source et robots.txt.",
+        challenge_id=2, story_fragment=STORY_FRAGMENTS[2],
     )
 
 
@@ -161,6 +427,8 @@ def profile():
     ).fetchone()
     if not row:
         return render_template("profile.html", profile=None, uid=uid), 404
+    if uid == 42:
+        mark_solved(1)
     return render_template("profile.html", profile=dict(row), uid=uid)
 
 
@@ -199,23 +467,25 @@ def login():
 
     # Détection du challenge déclenché :
     if row["password"] != password:
-        # mot de passe DB différent de celui soumis -> SQLi a contourné le test
         return reveal(
             "La serrure en sucre",
             FLAGS[6],
             "Tu as injecté du SQL pour passer la porte sans la clé.",
+            challenge_id=6, story_fragment=STORY_FRAGMENTS[6],
         )
     if username == "admin" and password == "admin":
         return reveal(
             "La porte du capitaine",
             FLAGS[3],
             "« admin / admin » encore en place en 2026. Honteux.",
+            challenge_id=3, story_fragment=STORY_FRAGMENTS[3],
         )
     if username == "bob" and password == "letmein":
         return reveal(
             "Le coffre mal fermé",
             FLAGS[12],
             "Aucun rate-limit, aucun captcha. Un brute-force grand ouvert.",
+            challenge_id=12, story_fragment=STORY_FRAGMENTS[12],
         )
     flash(f"Bienvenue à bord, {username} !")
     return redirect("/")
@@ -233,6 +503,7 @@ def logout():
 @app.route("/debug")
 def debug():
     # # [VULN A05] endpoint de debug oublié en prod (#4)
+    mark_solved(4)
     interesting = {
         k: v for k, v in os.environ.items()
         if not k.startswith(("PATH", "PWD", "HOSTNAME", "LANG", "TERM", "LC_", "HOME", "SHELL"))
@@ -255,6 +526,8 @@ def search_reflected():
     q = request.args.get("q", "")
     # # [VULN A03] XSS reflected — q est rendu sans échappement dans search.html (|safe) (#5)
     triggered = any(s in q.lower() for s in ["<script", "onerror", "onload", "alert(", "<svg"])
+    if triggered:
+        mark_solved(5)
     return render_template(
         "search.html",
         q=q,
@@ -269,6 +542,7 @@ def search_reflected():
 @app.route("/treasure_message")
 def treasure_message():
     # # [VULN A02] obfuscation Base64 prise pour du chiffrement (#7)
+    mark_solved(7)
     encoded = base64.b64encode(FLAGS[7].encode()).decode()
     resp = make_response(render_template("treasure_message.html", encoded=encoded))
     resp.set_cookie("secret", encoded)
@@ -320,7 +594,6 @@ def jwt_decode(token: str):
 def vip():
     token = request.cookies.get("jwt_session")
     if not token:
-        # On donne un JWT de départ en user lambda
         payload = {"username": "matelot", "role": "user"}
         resp = make_response(render_template("vip.html", role="user", token=jwt_encode(payload)))
         resp.set_cookie("jwt_session", jwt_encode(payload))
@@ -332,6 +605,7 @@ def vip():
             "Le sceau du capitaine",
             FLAGS[8],
             "Tu as forgé un JWT en alg:none. Toute lib qui l'accepte est cassée.",
+            challenge_id=8, story_fragment=STORY_FRAGMENTS[8],
         )
     return render_template("vip.html", role=role, token=token)
 
@@ -342,6 +616,7 @@ def vip():
 @app.route("/api/users")
 def api_users():
     # # [VULN A06] API renvoie TOUS les champs (mdp + note privée) sans contrôle (#9)
+    mark_solved(9)
     rows = db().execute(
         "SELECT id, username, password, email, role, balance, note FROM users"
     ).fetchall()
@@ -422,7 +697,6 @@ def _checkout(cart, coupons):
     has_neg_qty = any(it["qty"] < 0 for it in cart)
     has_pos_only = all(it["qty"] > 0 for it in cart) if cart else False
 
-    # #10 : quantité négative + total final négatif
     if has_neg_qty and total < 0:
         session["cart"] = []
         session["coupons"] = []
@@ -431,9 +705,9 @@ def _checkout(cart, coupons):
             FLAGS[10],
             "Tu as commandé une quantité négative — l'app t'a remboursé un objet "
             "que tu n'as pas acheté. Bienvenue dans la logique métier cassée.",
+            challenge_id=10, story_fragment=STORY_FRAGMENTS[10],
         )
 
-    # #16 : 3+ coupons WELCOME10 empilés (sans recourir aux qty négatives)
     if has_pos_only and len(coupons) >= 3 and total <= 0:
         session["cart"] = []
         session["coupons"] = []
@@ -441,6 +715,7 @@ def _checkout(cart, coupons):
             "Le coupon magique",
             FLAGS[16],
             "Tu as empilé WELCOME10 jusqu'à briser la logique métier.",
+            challenge_id=16, story_fragment=STORY_FRAGMENTS[16],
         )
 
     session["cart"] = []
@@ -462,6 +737,8 @@ def download():
             data = f.read()
     except (FileNotFoundError, IsADirectoryError, PermissionError, OSError) as e:
         return f"Fichier introuvable : {fname} ({e.__class__.__name__})", 404
+    if b"HUMANIX{" in data:
+        mark_solved(11)
     return Response(data, mimetype="text/plain")
 
 
@@ -478,6 +755,10 @@ def search_book():
     try:
         rows = db().execute(sql).fetchall()
         results = [tuple(r) for r in rows]
+        for row in results:
+            if any("HUMANIX{" in str(cell) for cell in row):
+                mark_solved(13)
+                break
     except sqlite3.Error as e:
         error = str(e)
     return render_template(
@@ -503,6 +784,7 @@ def crack():
                 FLAGS[14],
                 "MD5 d'un mot du dico : cassé en 200 ms par CrackStation. "
                 "Vrai conseil pro : argon2id avec sel + work factor élevé.",
+                challenge_id=14, story_fragment=STORY_FRAGMENTS[14],
             )
         result = "Pas le bon mot. Réessaie."
     return render_template("crack.html", target=MD5_TARGET, result=result)
@@ -513,6 +795,7 @@ def crack():
 # ---------------------------------------------------------------------------
 @app.route("/api/me")
 def api_me():
+    mark_solved(15)
     payload = {
         "username": session.get("username", "anon"),
         "role": session.get("role", "anon"),
@@ -550,6 +833,7 @@ def reset():
         FLAGS[17],
         "Un token de reset traînait dans les logs publics. "
         "Tu as réinitialisé le capitaine sans qu'aucune alerte ne parte.",
+        challenge_id=17, story_fragment=STORY_FRAGMENTS[17],
     )
 
 
@@ -564,6 +848,8 @@ def preview():
         rendered = render_template_string("Hello " + name + " !")
     except Exception as e:
         rendered = f"Erreur de template : {e}"
+    if "HUMANIX{" in rendered or "FLAG_SSTI" in name:
+        mark_solved(18)
     return render_template("preview.html", name=name, rendered=rendered)
 
 
@@ -581,6 +867,8 @@ def fetch():
         body = r.text[:4000]
     except Exception as e:
         body = f"Erreur : {e}"
+    if "HUMANIX{" in body:
+        mark_solved(19)
     return render_template("fetch.html", url=url, content=body)
 
 
@@ -614,8 +902,6 @@ def product(pid):
 
 @app.route("/report/<int:pid>")
 def report(pid):
-    """Simule la visite d'un admin. Si du JS y est injecté, le challenge XSS
-    stocké est validé."""
     rows = db().execute("SELECT body FROM comments WHERE product_id=?", (pid,)).fetchall()
     payload = " ".join(r["body"].lower() for r in rows)
     triggered = any(
@@ -626,6 +912,7 @@ def report(pid):
             "Le message gravé",
             FLAGS[20],
             "L'admin bot a chargé la page — ton XSS persistant s'est déclenché.",
+            challenge_id=20, story_fragment=STORY_FRAGMENTS[20],
         )
     return render_template(
         "report.html",
@@ -649,8 +936,6 @@ def transfer():
         "SELECT id, username, balance FROM users ORDER BY id"
     ).fetchall()]
 
-    # Check au chargement : si un utilisateur a un solde négatif, la race
-    # condition a déjà été exploitée → on affiche le flag directement.
     if request.method == "GET":
         neg = [u for u in users if u["balance"] < 0]
         if neg:
@@ -659,6 +944,7 @@ def transfer():
                 FLAGS[21],
                 f"Le solde de « {neg[0]['username']} » est à {neg[0]['balance']:.2f} €. "
                 "Race condition (TOCTOU) déjà exploitée !",
+                challenge_id=21, story_fragment=STORY_FRAGMENTS[21],
             )
         return render_template("transfer.html", users=users)
 
@@ -686,25 +972,21 @@ def transfer():
     conn.execute("UPDATE users SET balance = balance + ? WHERE username=?", (amount, dst))
     conn.commit()
 
-    # Pause post-commit : laisse le temps à une éventuelle requête concurrente
-    # de finaliser son propre transfert avant qu'on relise le solde.
     time.sleep(2)
 
-    # Relecture du solde réel après commit + pause
     new_row = db().execute(
         "SELECT balance FROM users WHERE username=?", (src,)
     ).fetchone()
     actual_balance = new_row["balance"] if new_row else 0
     expected_balance = balance_before - amount
 
-    # Trigger : le solde réel est inférieur à ce qu'on attendait (quelqu'un d'autre
-    # a aussi retiré pendant notre fenêtre TOCTOU) OU le solde est négatif
     if actual_balance < expected_balance or actual_balance < 0:
         return reveal(
             "La course au trésor",
             FLAGS[21],
             "Tu as exploité une race condition (TOCTOU) : deux requêtes "
             "concurrentes ont lu le même solde avant que la première ne l'écrive.",
+            challenge_id=21, story_fragment=STORY_FRAGMENTS[21],
         )
 
     users = [dict(r) for r in db().execute(
@@ -730,6 +1012,7 @@ def setlang():
             "Tu as injecté des caractères CR/LF dans un en-tête HTTP. "
             "En production, cela permet d'ajouter des en-têtes arbitraires "
             "(Set-Cookie, Location…) voire de couper la réponse en deux.",
+            challenge_id=22, story_fragment=STORY_FRAGMENTS[22],
         )
     resp = make_response(render_template("setlang.html", lang=lang))
     resp.headers.add("X-Custom-Lang", lang)
@@ -756,6 +1039,7 @@ def forgot():
             FLAGS[23],
             "Tu as forgé le header Host pour que le lien de reset pointe "
             "vers TON serveur. La victime clique → tu récupères le token.",
+            challenge_id=23, story_fragment=STORY_FRAGMENTS[23],
         )
 
     return render_template("forgot.html", link=link,
@@ -779,6 +1063,7 @@ def api_profile_update():
     conn.commit()
 
     if data.get("role") == "admin":
+        mark_solved(24)
         return jsonify({
             "status": "updated",
             "flag": FLAGS[24],
@@ -817,6 +1102,7 @@ def lottery():
                 FLAGS[25],
                 "Le PRNG était seedé avec time() — en reproduisant le seed "
                 "côté client au même instant, tu prédis le résultat à coup sûr.",
+                challenge_id=25, story_fragment=STORY_FRAGMENTS[25],
             )
         result = f"Perdu ! Le numéro gagnant était {winning}."
 
@@ -837,6 +1123,7 @@ def goto():
                 FLAGS[26],
                 "Aucune whitelist : tu rediriges l'utilisateur vers n'importe "
                 "quel domaine. Parfait pour le phishing « via un lien légitime ».",
+                challenge_id=26, story_fragment=STORY_FRAGMENTS[26],
             )
     return redirect(url)
 
@@ -867,6 +1154,7 @@ def api_vault():
         FLAGS[27],
         "La comparaison caractère par caractère fuit le nombre de bons "
         "caractères via le temps de réponse. Attaque de timing classique.",
+        challenge_id=27, story_fragment=STORY_FRAGMENTS[27],
     )
 
 
@@ -893,6 +1181,7 @@ def calculate():
             "eval() sur une entrée utilisateur = exécution de code arbitraire. "
             "Un attaquant peut lire des fichiers, des variables internes, "
             "ou lancer un reverse shell.",
+            challenge_id=28, story_fragment=STORY_FRAGMENTS[28],
         )
 
     return render_template("calculate.html", expr=expr, result=str(result))
@@ -924,6 +1213,7 @@ def import_prefs():
             FLAGS[29],
             "pickle.loads() désérialise du code arbitraire. Avec __reduce__, "
             "un attaquant exécute n'importe quelle commande système.",
+            challenge_id=29, story_fragment=STORY_FRAGMENTS[29],
         )
 
     if not isinstance(prefs, dict):
@@ -931,6 +1221,7 @@ def import_prefs():
             "Le colis piégé",
             FLAGS[29],
             "pickle.loads() a exécuté du code — le résultat n'est même plus un dict.",
+            challenge_id=29, story_fragment=STORY_FRAGMENTS[29],
         )
 
     exported = base64.b64encode(pickle.dumps(default_prefs)).decode()
@@ -963,6 +1254,7 @@ def validate_ship():
                 FLAGS[30],
                 "La regex ^([a-z]+)+$ provoque un backtracking exponentiel "
                 "sur une entrée comme « aaa…aaa! ». C'est un ReDoS.",
+                challenge_id=30, story_fragment=STORY_FRAGMENTS[30],
             )
         result = "Nom valide ✓" if match else "Nom invalide ✗"
 

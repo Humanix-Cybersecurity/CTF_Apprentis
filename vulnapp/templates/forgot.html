@@ -5,8 +5,9 @@
 <section class="card">
   <h2>Mot de passe oublié</h2>
   <p style="color:var(--text-dim);">
-    Entre ton nom d'utilisateur. Un lien de réinitialisation sera généré
-    (simulation — aucun e-mail n'est envoyé).
+    Le token du capitaine traîne dans les logs publics. Et le lien de reset
+    est construit à partir du header Host... Si tu le forges, le lien pointe
+    vers ton serveur. Le Second l'a fait le 27 mai à 7h15.
   </p>
 
   {% if message %}<div class="flash">{{ message }}</div>{% endif %}

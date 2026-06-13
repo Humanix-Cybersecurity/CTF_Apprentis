@@ -518,3 +518,95 @@ footer.bottombar {
 ::-webkit-scrollbar-track { background: var(--bg); }
 ::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 5px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--text-faint); }
+
+/* --- Journal de bord --------------------------------------- */
+.progress-global { margin-top: 1.5rem; }
+.progress-bar { height: 8px; background: var(--bg-2); border-radius: 4px; overflow: hidden; }
+.progress-bar.small { height: 5px; }
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--info));
+  border-radius: 4px;
+  transition: width 0.6s ease;
+}
+.act-header { margin-bottom: 0.6rem; }
+.fragments-grid { display: grid; grid-template-columns: 1fr; gap: 0.8rem; margin-top: 1rem; }
+.fragment {
+  padding: 1rem 1.2rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  transition: border-color 0.2s;
+}
+.fragment.unlocked { border-left: 3px solid var(--accent); }
+.fragment.locked { opacity: 0.55; }
+.fragment-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+}
+.fragment-num {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--text-dim);
+  font-size: 0.88rem;
+}
+.fragment-title {
+  font-size: 0.82rem;
+  color: var(--text-faint);
+}
+.fragment-text {
+  font-size: 0.92rem;
+  color: var(--text-dim);
+  line-height: 1.65;
+  font-style: italic;
+  white-space: pre-line;
+}
+.locked-text {
+  color: var(--text-faint);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-style: normal;
+}
+.act-epilogue {
+  margin-top: 1.2rem;
+  padding: 1rem 1.2rem;
+  background: rgba(16, 185, 129, 0.06);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  border-radius: var(--r);
+  color: var(--text-dim);
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+.final-reveal-panel { margin-top: 2rem; }
+
+/* --- Story fragment (reveal page) -------------------------- */
+.story-fragment {
+  margin-top: 1.6rem;
+  padding: 1.2rem 1.4rem;
+  background: rgba(245, 158, 11, 0.06);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  border-radius: var(--r);
+  text-align: left;
+  max-width: 55ch;
+  margin-left: auto;
+  margin-right: auto;
+}
+.story-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--warn);
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+.story-text {
+  font-size: 0.92rem;
+  color: var(--text-dim);
+  line-height: 1.65;
+  font-style: italic;
+  white-space: pre-line;
+}

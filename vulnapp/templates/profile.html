@@ -7,7 +7,9 @@
 
   {% if not profile %}
     <div class="error">Aucun équipier sous ce numéro.</div>
-    <p class="hint">Essaie d'autres ID. Les comptes vont de 1 à… quelques dizaines.</p>
+    <p class="hint">Chaque marin a un profil. Certains cachent des notes privées que seul
+    le propriétaire devrait voir. Le trésorier a l'ID 42. Et le capitaine...
+    quelque part plus loin. Essaie d'autres ID.</p>
   {% else %}
     <table>
       <tr><th>Username</th><td>{{ profile.username }}</td></tr>

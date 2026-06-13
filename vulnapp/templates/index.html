@@ -7,16 +7,23 @@
 -->
 
 <section class="hero">
-  <h1>La <span class="accent">Carte au Trésor</span></h1>
+  <h1>La <span class="accent">Disparition du Capitaine</span></h1>
   <p>
-    Une boutique d'aventurier en apparence paisible — sauf que <strong>30 trésors</strong>
-    sont cachés dans le code. À toi de les retrouver, un par un, et
-    de soumettre chaque flag dans le CTFd de ton prof.
+    Nuit du 27 mai 2026. Le capitaine a disparu.
+    Son dernier message chiffré mentionne une mutinerie à bord.
+    En tant que mousse fraîchement embarqué sur <em>La Carte au Trésor</em>,
+    tu dois exploiter les failles des systèmes du navire pour reconstituer
+    la vérité. <strong>30 indices</strong> sont disséminés dans le code,
+    les logs, les profils et les recoins cachés du navire.
+  </p>
+  <p style="color: var(--warn); font-style: italic;">
+    « Le trésor n'est pas l'or. Le trésor, c'est la vérité. »
+    — Dernier message du capitaine
   </p>
   <div class="badge-row">
     <span class="badge accent">30 challenges</span>
     <span class="badge info">OWASP Top 10 + Bonus</span>
-    <span class="badge">Hints gratuits</span>
+    <span class="badge warn">Une histoire à reconstituer</span>
     {% if student_id %}
       <span class="badge warn">mode anti-triche · {{ student_id }}</span>
     {% else %}
@@ -27,66 +34,93 @@
 
 <section class="panel">
   <div class="row" style="margin-bottom:0.4rem;">
-    <h2 style="margin:0;">Lieux à explorer</h2>
+    <h2 style="margin:0;">Acte I — Monter à bord</h2>
     <span class="spacer"></span>
-    <span class="hint" style="margin:0;">22 points d'entrée visibles · d'autres sont cachés</span>
+    <span class="hint" style="margin:0;">Découverte de l'équipage et de ses secrets</span>
   </div>
 
   <div class="places">
     <a class="place" href="/profile?id=1">
       <div class="place-title"><span class="ico">👤</span> Profils</div>
-      <small>Voir un profil utilisateur</small>
+      <small>Qui sont les membres de l'équipage ? Certains cachent des choses...</small>
     </a>
     <a class="place" href="/login">
       <div class="place-title"><span class="ico">🔐</span> Connexion</div>
-      <small>Se connecter au navire</small>
+      <small>Le Second n'a jamais changé les clés. Et la serrure est en sucre.</small>
     </a>
     <a class="place" href="/search">
       <div class="place-title"><span class="ico">🔎</span> Recherche</div>
-      <small>Chercher du contenu sur le site</small>
+      <small>Le moteur ne filtre rien. Absolument rien.</small>
     </a>
     <a class="place" href="/search_book">
       <div class="place-title"><span class="ico">📚</span> Bibliothèque</div>
-      <small>Catalogue des livres de bord</small>
+      <small>Trois colonnes visibles... mais le navire a d'autres tables.</small>
     </a>
     <a class="place" href="/shop">
       <div class="place-title"><span class="ico">🛒</span> Boutique</div>
-      <small>Acheter cartes, longues-vues…</small>
+      <small>Les prix sont honnêtes. Les quantités, peut-être pas.</small>
     </a>
     <a class="place" href="/product/1">
       <div class="place-title"><span class="ico">📦</span> Produit</div>
-      <small>Page produit + commentaires</small>
+      <small>Les commentaires de l'équipage révèlent des tensions.</small>
     </a>
     <a class="place" href="/treasure_message">
       <div class="place-title"><span class="ico">📜</span> Message en bouteille</div>
-      <small>Un message du capitaine</small>
+      <small>Le capitaine croyait l'avoir chiffré. C'est du Base64.</small>
     </a>
     <a class="place" href="/vip">
       <div class="place-title"><span class="ico">⭐</span> Salon VIP</div>
-      <small>Réservé aux capitaines</small>
+      <small>Réservé aux capitaines. Le jeton peut être forgé.</small>
     </a>
     <a class="place" href="/crack">
       <div class="place-title"><span class="ico">🔨</span> Machine à hash</div>
-      <small>Devine le mot derrière le hash</small>
+      <small>MD5 sans sel — le genre de protection qui tombe en 200 ms.</small>
     </a>
     <a class="place" href="/preview?name=Matelot">
       <div class="place-title"><span class="ico">👋</span> Aperçu</div>
-      <small>Personnalise ton salut</small>
+      <small>Le moteur de templates exécute ce qu'on lui donne.</small>
     </a>
     <a class="place" href="/fetch">
       <div class="place-title"><span class="ico">🕊️</span> Pigeon voyageur</div>
-      <small>Récupère une URL côté serveur</small>
+      <small>Le Second avait un service privé sur le port 8081...</small>
     </a>
     <a class="place" href="/download?file=manifest.txt">
       <div class="place-title"><span class="ico">📄</span> Manifeste</div>
-      <small>Télécharger un fichier du navire</small>
+      <small>Le canot #3 est manquant depuis le 27 mai. Coïncidence ?</small>
     </a>
   </div>
 </section>
 
 <section class="panel">
   <div class="row" style="margin-bottom:0.4rem;">
-    <h2 style="margin:0;">Bonus — Hors OWASP</h2>
+    <h2 style="margin:0;">Acte II — La Mutinerie</h2>
+    <span class="spacer"></span>
+    <span class="hint" style="margin:0;">Les preuves s'accumulent</span>
+  </div>
+
+  <div class="places">
+    <a class="place" href="/logs">
+      <div class="place-title"><span class="ico">📋</span> Logs du navire</div>
+      <small>Le journal technique est public. Et il contient la nuit du 27 mai.</small>
+    </a>
+    <a class="place" href="/forgot">
+      <div class="place-title"><span class="ico">🔑</span> Mot de passe oublié</div>
+      <small>Le token du capitaine traîne dans les logs. Et le header Host...</small>
+    </a>
+    <a class="place" href="/api/me">
+      <div class="place-title"><span class="ico">🌐</span> API /api/me</div>
+      <small>Les headers CORS autorisent toute origine. Diana le savait.</small>
+    </a>
+    <a class="place" href="/api/users">
+      <div class="place-title"><span class="ico">🗄️</span> API /api/users</div>
+      <small>Mots de passe, notes privées, soldes — tout est exposé.</small>
+    </a>
+  </div>
+</section>
+
+<section class="panel">
+  <div class="row" style="margin-bottom:0.4rem;">
+    <h2 style="margin:0;">Acte III — Le Trésor caché</h2>
     <span class="spacer"></span>
     <span class="hint" style="margin:0;">10 challenges pour les plus rapides</span>
   </div>
@@ -94,43 +128,39 @@
   <div class="places">
     <a class="place" href="/transfer">
       <div class="place-title"><span class="ico">💸</span> Transfert</div>
-      <small>Envoie de l'or entre comptes</small>
+      <small>Deux requêtes au même instant. Un seul solde. 3 000 doublons volatilisés.</small>
     </a>
     <a class="place" href="/setlang?lang=fr">
       <div class="place-title"><span class="ico">🌐</span> Langue</div>
-      <small>Changer la langue du site</small>
-    </a>
-    <a class="place" href="/forgot">
-      <div class="place-title"><span class="ico">🔑</span> Mot de passe oublié</div>
-      <small>Réinitialiser un accès</small>
+      <small>Le paramètre est injecté dans un en-tête HTTP. Sans filtrage.</small>
     </a>
     <a class="place" href="/api/profile/update">
       <div class="place-title"><span class="ico">🛠️</span> API Profil</div>
-      <small>Modifier son profil via l'API</small>
+      <small>Charlie a changé son rôle en silence le 26 mai.</small>
     </a>
     <a class="place" href="/lottery">
       <div class="place-title"><span class="ico">🎲</span> Loterie</div>
-      <small>Tente ta chance au tirage</small>
+      <small>Le trésorier ne perdait jamais. Le hasard n'existe pas ici.</small>
     </a>
     <a class="place" href="/goto?url=/">
       <div class="place-title"><span class="ico">🔗</span> Raccourci</div>
-      <small>Redirection rapide</small>
+      <small>Diana a envoyé un lien « légitime » au capitaine le 26 mai.</small>
     </a>
     <a class="place" href="/api/vault">
       <div class="place-title"><span class="ico">🔐</span> Coffre-fort</div>
-      <small>Protégé par une clé secrète</small>
+      <small>La clé se devine caractère par caractère. Patience.</small>
     </a>
     <a class="place" href="/calculate">
       <div class="place-title"><span class="ico">🧮</span> Calculatrice</div>
-      <small>Évalue des expressions math</small>
+      <small>Un instrument de navigation. Ou une boîte de Pandore.</small>
     </a>
     <a class="place" href="/import_prefs">
       <div class="place-title"><span class="ico">📦</span> Préférences</div>
-      <small>Importer / exporter ses réglages</small>
+      <small>Le comploteur a injecté un payload dans les préférences du capitaine.</small>
     </a>
     <a class="place" href="/validate_ship">
       <div class="place-title"><span class="ico">🚢</span> Nom de navire</div>
-      <small>Valide ton nom de vaisseau</small>
+      <small>La regex catastrophique met le serveur à genoux. Trou noir total.</small>
     </a>
   </div>
 </section>
@@ -141,6 +171,11 @@
     Le clic droit existe. <code>Ctrl + U</code> aussi. Et <code>F12</code>.
     Beaucoup de trésors n'attendent que ça. Quand tu bloques, lis les hints
     du CTFd — ils sont gratuits et progressifs (orientation → piste → quasi-solution).
+  </p>
+  <p style="color:var(--text-dim);">
+    Chaque flag découvert ajoute un fragment au
+    <a href="/journal" style="color:var(--warn);">Journal de bord</a>.
+    Reconstitue l'histoire complète pour comprendre ce qui est arrivé au capitaine.
   </p>
 </section>
 

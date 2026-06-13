@@ -23,6 +23,12 @@
   </div>
 
   {% if hint %}<div class="why">{{ hint }}</div>{% endif %}
+  {% if story_fragment %}
+  <div class="story-fragment">
+    <div class="story-label">Fragment du journal de bord</div>
+    <div class="story-text">{{ story_fragment }}</div>
+  </div>
+  {% endif %}
   <div class="submit-hint">
     Recopie ce flag dans le <strong>CTFd</strong> de ton prof pour valider le challenge.
   </div>

@@ -6,7 +6,10 @@
   <h2>Import / Export de préférences</h2>
   <p style="color:var(--text-dim);">
     Exporte tes préférences pour les sauvegarder, ou importe-les depuis
-    un autre navigateur. Le format est du Base64 sérialisé côté serveur.
+    un autre navigateur. Le format est du Base64 sérialisé côté serveur via
+    <code>pickle</code>. Le comploteur a injecté un payload dans les préférences
+    du capitaine pour effacer les preuves de sa machine. <code>__reduce__</code>
+    est ton ami.
   </p>
 
   {% if error %}<div class="flash" style="color:#f87171;">{{ error }}</div>{% endif %}
